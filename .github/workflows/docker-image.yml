@@ -27,7 +27,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./Bakery-backend/BakeryService
-          file: ./Bakery-backend/BakeryService/backend.Dockerfile
+          file: ./Bakery-backend/BakeryService/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/docker-backend-2400032074:latest
 
@@ -35,6 +35,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./Bakery-frontend
-          file: ./Bakery-frontend/frontend.Dockerfile
+          file: ./Bakery-frontend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/docker-frontend-2400032074:latest
