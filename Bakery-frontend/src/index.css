@@ -1,0 +1,61 @@
+:root {
+  --bakery-brown: #6f4e37;
+  --bakery-cream: #fff8f0;
+  --bakery-accent: #d98c4a;
+}
+
+body {
+  background-color: var(--bakery-cream);
+  min-height: 100vh;
+}
+
+.bakery-navbar {
+  background: linear-gradient(90deg, #4e342e, var(--bakery-brown));
+}
+
+.bakery-navbar .nav-link {
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.9rem;
+}
+
+.bakery-navbar .nav-link:hover,
+.bakery-navbar .nav-link.active {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.hero {
+  background: linear-gradient(135deg, #fff1de, #ffe0bd);
+  border-radius: 1rem;
+}
+
+.btn-bakery {
+  background-color: var(--bakery-accent);
+  border-color: var(--bakery-accent);
+  color: #fff;
+}
+
+.btn-bakery:hover,
+.btn-bakery:focus {
+  background-color: #c37a3a;
+  border-color: #c37a3a;
+  color: #fff;
+}
+
+.card-soft {
+  border: 0;
+  border-radius: 1rem;
+  box-shadow: 0 4px 14px rgba(111, 78, 55, 0.12);
+}
+
+.modal-backdrop-custom {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}

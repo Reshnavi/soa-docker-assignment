@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  postgresdb:
+    image: postgres:16-alpine
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: bakerydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - springboot-postgres-net
+
+  backend:
+    image: reshnavi/docker-backend-2400032074:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: docker-springboot
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgresdb
+    restart: on-failure
+    networks:
+      - springboot-postgres-net
+
+  frontend:
+    image: reshnavi/docker-frontend-2400032074:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: docker-react
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: on-failure
+    networks:
+      - springboot-postgres-net
+
+volumes:
+  postgres_data:
+
+networks:
+  springboot-postgres-net:

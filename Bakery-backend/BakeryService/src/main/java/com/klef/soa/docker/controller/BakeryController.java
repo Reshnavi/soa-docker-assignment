@@ -1,0 +1,51 @@
+package com.klef.soa.docker.controller;
+
+import com.klef.soa.docker.dto.BakeryRequest;
+import com.klef.soa.docker.dto.BakeryResponse;
+import com.klef.soa.docker.service.BakeryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/bakery")
+@CrossOrigin(origins = "*")
+@Tag(name = "Bakery Operations", description = "Add, View and Delete Bakeries")
+public class BakeryController {
+
+    @Autowired
+    private BakeryService bakeryService;
+
+    // 1. Add Bakery
+    @Operation(summary = "Add Bakery")
+    @PostMapping("/add")
+    public ResponseEntity<BakeryResponse> addBakery(@Valid @RequestBody BakeryRequest request) {
+        BakeryResponse response = bakeryService.addBakery(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    // 2. View All Bakeries
+    @Operation(summary = "View All Bakeries")
+    @GetMapping("/view")
+    public ResponseEntity<List<BakeryResponse>> viewAllBakeries() {
+        return ResponseEntity.ok(bakeryService.getAllBakeries());
+    }
+
+    // 3. Delete Bakery
+    @Operation(summary = "Delete Bakery")
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Map<String, String>> deleteBakery(@PathVariable Long id) {
+        bakeryService.deleteBakery(id);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Bakery deleted successfully");
+        return ResponseEntity.ok(response);
+    }
+}
