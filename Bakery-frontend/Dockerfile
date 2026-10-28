@@ -1,5 +1,5 @@
 # Serve static index.html via Nginx
-FROM nginx:alpin
+FROM nginx:alpine
 
 # Copy your single index.html file to Nginx's default public directory
 COPY index.html /usr/share/nginx/html/index.html
