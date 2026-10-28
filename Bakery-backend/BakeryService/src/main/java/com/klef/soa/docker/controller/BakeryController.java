@@ -48,4 +48,13 @@ public class BakeryController {
         response.put("message", "Bakery deleted successfully");
         return ResponseEntity.ok(response);
     }
+    //4.Update by id
+    @Operation(summary = "Update Bakery")
+    @PutMapping("/update/{id}")
+    public ResponseEntity<BakeryResponse> updateBakery(
+            @PathVariable Long id, 
+            @Valid @RequestBody BakeryRequest request) {
+        BakeryResponse updatedBakery = bakeryService.updateBakery(id, request);
+        return ResponseEntity.ok(updatedBakery);
+    }
 }

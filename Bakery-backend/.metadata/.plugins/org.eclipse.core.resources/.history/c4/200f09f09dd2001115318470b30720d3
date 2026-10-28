@@ -1,0 +1,18 @@
+spring.application.name=bakery-service
+server.port=8080
+
+# PostgreSQL Configuration for Local Environment
+spring.datasource.url=jdbc:postgresql://localhost:5432/bakerydb
+spring.datasource.username=postgres
+spring.datasource.password=
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# JPA / Hibernate
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+# Swagger UI Config
+springdoc.api-docs.path=/api-docs
+springdoc.swagger-ui.path=/swagger-ui.html

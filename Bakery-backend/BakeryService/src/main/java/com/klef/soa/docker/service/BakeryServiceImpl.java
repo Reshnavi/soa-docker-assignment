@@ -1,15 +1,22 @@
 package com.klef.soa.docker.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+
 import com.klef.soa.docker.dto.BakeryRequest;
 import com.klef.soa.docker.dto.BakeryResponse;
 import com.klef.soa.docker.entity.Bakery;
 import com.klef.soa.docker.repository.BakeryRepository;
-import com.klef.soa.docker.service.BakeryService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import jakarta.validation.Valid;
 
 @Service
 public class BakeryServiceImpl implements BakeryService {
@@ -53,5 +60,21 @@ public class BakeryServiceImpl implements BakeryService {
                 bakery.getDailyCapacity(),
                 bakery.getCustomCakes()
         );
+    }
+    @Override
+    public BakeryResponse updateBakery(Long id, BakeryRequest request) {
+        // Find existing bakery
+        Bakery existingBakery = bakeryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Bakery not found with id: " + id));
+
+        // Update fields
+        existingBakery.setBakeryName(request.getBakeryName());
+        existingBakery.setSpecialty(request.getSpecialty());
+        existingBakery.setDailyCapacity(request.getDailyCapacity());
+        existingBakery.setCustomCakes(request.getCustomCakes());
+
+        // Save and return
+        Bakery updated = bakeryRepository.save(existingBakery);
+        return mapToResponse(updated);
     }
 }

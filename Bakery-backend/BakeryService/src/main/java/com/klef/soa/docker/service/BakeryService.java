@@ -8,4 +8,5 @@ public interface BakeryService {
     BakeryResponse addBakery(BakeryRequest request);
     List<BakeryResponse> getAllBakeries();
     void deleteBakery(Long id);
+    BakeryResponse updateBakery(Long id, BakeryRequest request);
 }

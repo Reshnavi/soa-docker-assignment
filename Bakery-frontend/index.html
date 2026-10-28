@@ -1,13 +1,327 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Bakery management - add, view and delete bakeries" />
-    <title>Bakery Manager</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bakery Management System</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-amber-50/50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Header / Navbar -->
+    <header class="bg-amber-800 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-amber-700 p-2.5 rounded-xl shadow-inner">
+                    <i class="fa-solid fa-bread-slice text-2xl text-amber-200"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide">Bakery Management System</h1>
+                    <p class="text-xs text-amber-200">Connected to Spring Boot Backend</p>
+                </div>
+            </div>
+            
+            <!-- Add New Bakery Button -->
+            <div>
+                <button onclick="openAddModal()" class="bg-amber-500 hover:bg-amber-400 text-amber-950 font-semibold px-4 py-2 rounded-xl shadow transition flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-plus"></i> Add Bakery
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
+        
+        <!-- Stats Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-amber-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Bakeries</p>
+                    <h3 id="statTotal" class="text-2xl font-bold text-slate-700 mt-1">0</h3>
+                </div>
+                <div class="bg-amber-100 text-amber-800 p-3 rounded-xl">
+                    <i class="fa-solid fa-store text-xl"></i>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-amber-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Daily Capacity</p>
+                    <h3 id="statCapacity" class="text-2xl font-bold text-slate-700 mt-1">0</h3>
+                </div>
+                <div class="bg-orange-100 text-orange-800 p-3 rounded-xl">
+                    <i class="fa-solid fa-chart-line text-xl"></i>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-amber-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Custom Cakes Offered</p>
+                    <h3 id="statCustom" class="text-2xl font-bold text-slate-700 mt-1">0</h3>
+                </div>
+                <div class="bg-yellow-100 text-yellow-800 p-3 rounded-xl">
+                    <i class="fa-solid fa-cake-candles text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toolbar: Search & Refresh -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-amber-100 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="relative w-full sm:w-80">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                    <i class="fa-solid fa-search"></i>
+                </span>
+                <input type="text" id="searchInput" oninput="filterBakeries()" placeholder="Search by name or specialty..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+            </div>
+            <button onclick="loadBakeries()" class="w-full sm:w-auto text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2 rounded-xl transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-rotate-right"></i> Refresh Data
+            </button>
+        </div>
+
+        <!-- Bakeries Table Container -->
+        <div class="bg-white rounded-2xl shadow-sm border border-amber-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-amber-50/70 border-b border-amber-100 text-amber-900 text-xs font-semibold uppercase tracking-wider">
+                            <th class="py-3.5 px-6">ID</th>
+                            <th class="py-3.5 px-6">Bakery Name</th>
+                            <th class="py-3.5 px-6">Specialty</th>
+                            <th class="py-3.5 px-6">Daily Capacity</th>
+                            <th class="py-3.5 px-6">Custom Cakes</th>
+                            <th class="py-3.5 px-6 text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bakeryTableBody" class="divide-y divide-slate-100 text-sm">
+                        <!-- Populated dynamically via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-12">
+                <i class="fa-solid fa-cookie-bite text-4xl text-slate-300 mb-3"></i>
+                <p class="text-slate-500 font-medium">No bakeries found.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Form (Add / Update) -->
+    <div id="bakeryModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-amber-100 transform transition-all">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modalTitle" class="text-lg font-bold text-slate-800">Add Bakery</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form id="bakeryForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                <input type="hidden" id="bakeryId">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Bakery Name</label>
+                    <input type="text" id="bakeryName" required class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="e.g. Sweet Crust Bakery">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Specialty</label>
+                    <input type="text" id="specialty" required class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="e.g. Sourdough Bread">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Daily Capacity</label>
+                    <input type="number" id="dailyCapacity" required min="1" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="e.g. 500">
+                </div>
+                <div class="flex items-center gap-2 pt-1">
+                    <input type="checkbox" id="customCakes" class="w-4 h-4 text-amber-600 border-slate-300 rounded focus:ring-amber-500">
+                    <label for="customCakes" class="text-sm font-medium text-slate-700">Offers Custom Cakes</label>
+                </div>
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-200 rounded-xl text-slate-600 font-medium text-sm hover:bg-slate-50 transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-semibold text-sm shadow transition">Save Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-amber-100 py-4 text-center text-xs text-slate-400 mt-auto">
+        Bakery Microservice UI &bull; Connected to Spring Boot Backend (`http://localhost:8080`)
+    </footer>
+
+    <!-- JavaScript Application Logic (Live API Only) -->
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/bakery';
+        let bakeriesData = [];
+
+        window.onload = () => {
+            loadBakeries();
+        };
+
+        async function loadBakeries() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/view`);
+                if (!response.ok) throw new Error("Failed to connect to backend server");
+                bakeriesData = await response.json();
+                renderTable(bakeriesData);
+                updateStats(bakeriesData);
+            } catch (err) {
+                console.warn("Backend connection failed:", err);
+                showToast("Cannot reach backend server at http://localhost:8080", "error");
+                renderTable([]);
+                updateStats([]);
+            }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('bakeryTableBody');
+            const emptyState = document.getElementById('emptyState');
+            tbody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            data.forEach(b => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-amber-50/30 transition border-b border-slate-50";
+                tr.innerHTML = `
+                    <td class="py-3.5 px-6 font-mono text-xs text-slate-500">#${b.id}</td>
+                    <td class="py-3.5 px-6 font-semibold text-slate-700">${escapeHtml(b.bakeryName)}</td>
+                    <td class="py-3.5 px-6 text-slate-600">${escapeHtml(b.specialty)}</td>
+                    <td class="py-3.5 px-6 text-slate-600">${b.dailyCapacity} units</td>
+                    <td class="py-3.5 px-6">
+                        ${b.customCakes ? '<span class="px-2.5 py-1 text-xs font-semibold bg-emerald-100 text-emerald-800 rounded-full">Yes</span>' : '<span class="px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-600 rounded-full">No</span>'}
+                    </td>
+                    <td class="py-3.5 px-6 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <button onclick="openEditModal(${b.id})" class="p-1.5 bg-sky-50 text-sky-600 rounded-lg hover:bg-sky-100 transition" title="Edit">
+                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                            </button>
+                            <button onclick="deleteBakery(${b.id})" class="p-1.5 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition" title="Delete">
+                                <i class="fa-solid fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateStats(data) {
+            document.getElementById('statTotal').textContent = data.length;
+            const totalCap = data.reduce((sum, b) => sum + (parseInt(b.dailyCapacity) || 0), 0);
+            document.getElementById('statCapacity').textContent = totalCap.toLocaleString();
+            const customCount = data.filter(b => b.customCakes).length;
+            document.getElementById('statCustom').textContent = customCount;
+        }
+
+        function filterBakeries() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = bakeriesData.filter(b => 
+                b.bakeryName.toLowerCase().includes(query) || 
+                b.specialty.toLowerCase().includes(query)
+            );
+            renderTable(filtered);
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = 'Add Bakery';
+            document.getElementById('bakeryId').value = '';
+            document.getElementById('bakeryForm').reset();
+            document.getElementById('bakeryModal').classList.remove('hidden');
+            document.getElementById('bakeryModal').classList.add('flex');
+        }
+
+        async function openEditModal(id) {
+            document.getElementById('modalTitle').textContent = 'Update Bakery';
+            document.getElementById('bakeryId').value = id;
+
+            const bakery = bakeriesData.find(b => b.id === id);
+            if (bakery) {
+                document.getElementById('bakeryName').value = bakery.bakeryName;
+                document.getElementById('specialty').value = bakery.specialty;
+                document.getElementById('dailyCapacity').value = bakery.dailyCapacity;
+                document.getElementById('customCakes').checked = bakery.customCakes;
+            }
+
+            document.getElementById('bakeryModal').classList.remove('hidden');
+            document.getElementById('bakeryModal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('bakeryModal').classList.remove('flex');
+            document.getElementById('bakeryModal').classList.add('hidden');
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            const id = document.getElementById('bakeryId').value;
+            const payload = {
+                bakeryName: document.getElementById('bakeryName').value,
+                specialty: document.getElementById('specialty').value,
+                dailyCapacity: parseInt(document.getElementById('dailyCapacity').value),
+                customCakes: document.getElementById('customCakes').checked
+            };
+
+            try {
+                let url = `${API_BASE_URL}/add`;
+                let method = 'POST';
+                if (id) {
+                    url = `${API_BASE_URL}/update/${id}`;
+                    method = 'PUT';
+                }
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) throw new Error("Operation failed");
+                showToast(id ? "Bakery updated successfully!" : "Bakery added successfully!", "success");
+                closeModal();
+                loadBakeries();
+            } catch (err) {
+                showToast("Error communicating with server", "error");
+            }
+        }
+
+        async function deleteBakery(id) {
+            if (!confirm("Are you sure you want to delete this bakery?")) return;
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/delete/${id}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error("Delete failed");
+                showToast("Bakery deleted successfully", "success");
+                loadBakeries();
+            } catch (err) {
+                showToast("Failed to delete bakery", "error");
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const bgCol = type === 'success' ? 'bg-emerald-600' : 'bg-rose-600';
+            toast.className = `${bgCol} text-white px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 transform translate-y-2 opacity-0 transition-all duration-300`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i> ${message}`;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+    </script>
+</body>
 </html>

@@ -1,14 +1,8 @@
-# Stage 1: Build
-FROM node:20-alpine AS build
-WORKDIR /app
+# Serve static index.html via Nginx
+FROM nginx:alpin
 
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
+# Copy your single index.html file to Nginx's default public directory
+COPY index.html /usr/share/nginx/html/index.html
 
-# Stage 2: Serve production
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
